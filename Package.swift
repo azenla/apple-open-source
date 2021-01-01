@@ -3,11 +3,11 @@
 import PackageDescription
 
 let package = Package(
-  name: "OpenSource",
+  name: "AppleOpenSource",
   products: [
     .executable(
-      name: "apple-oss",
-      targets: ["OpenSource"]
+      name: "apple-open-source",
+      targets: ["AppleOpenSource"]
     )
   ],
   dependencies: [
@@ -16,7 +16,7 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "OpenSource",
+      name: "AppleOpenSource",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "SwiftSoup", package: "SwiftSoup")

@@ -1,4 +1,4 @@
-# Apple Open Source Toolkit
+# Apple Open Source Tool
 
 This is a tool for inspecting and fetching [Apple Open Source](https://opensource.apple.com) projects.
 

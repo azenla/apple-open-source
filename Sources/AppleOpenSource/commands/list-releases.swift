@@ -35,7 +35,7 @@ struct ListReleasesTool: ParsableCommand {
                 continue
             }
             
-            print("+ \(productName)")
+            print("* \(productName)")
             let releaseListButtons = try releaseListElement.select(".release-list-button")
 
             var index = 0

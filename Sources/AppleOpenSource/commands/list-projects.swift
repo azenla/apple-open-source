@@ -24,11 +24,11 @@ struct ListProjectsTool: ParsableCommand {
         let lowerProductName = product.lowercased()
         let smooshedReleaseName = release.replacingOccurrences(of: ".", with: "")
         let moniker = "\(lowerProductName)-\(smooshedReleaseName)"
-        let url = URL(string: "https://opensource.apple.com/plist/\(moniker).plist")!
-        let data = try Data(contentsOf: url)
-        var format = PropertyListSerialization.PropertyListFormat.xml
-        let plist = try PropertyListSerialization.propertyList(from: data, options: .mutableContainersAndLeaves, format: &format) as! [String:AnyObject]
-        
-        print(plist.keys)
+        let release = try OpenSourceClient.fetchReleaseDetails(moniker: moniker)
+        for project in release.projects.values {
+            print("* \(project.name!)")
+            print("  * version = \(project.version)")
+            print("  * url = \(project.createDownloadURL().absoluteString)")
+        }
     }
 }

@@ -10,11 +10,12 @@ import Foundation
 
 struct OpenSourceTool: ParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "apple-oss",
+        commandName: "apple-open-source",
         abstract: "Apple Open Source",
         subcommands: [
             ListReleasesTool.self,
-            ListProjectsTool.self
+            ListProjectsTool.self,
+            FetchTool.self
         ]
     )
 }
