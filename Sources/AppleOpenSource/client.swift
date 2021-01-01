@@ -1,6 +1,6 @@
 //
 //  client.swift
-//  
+//
 //
 //  Created by Kenneth Endfinger on 12/31/20.
 //
@@ -24,14 +24,14 @@ struct OpenSourceClient {
 struct OpenSourceRelease: Codable {
     var build: String
     var inherits: String
-    var projects: [String:OpenSourceProject]
+    var projects: [String: OpenSourceProject]
 }
 
 struct OpenSourceProject: Codable {
     var version: String
-    
+
     var name: String? = "unknown"
-    
+
     func createDownloadURL() -> URL {
         URL(string: "https://opensource.apple.com/tarballs/\(name!)/\(name!)-\(version).tar.gz")!
     }

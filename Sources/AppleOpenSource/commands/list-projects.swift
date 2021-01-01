@@ -1,6 +1,6 @@
 //
 //  list-projects.swift
-//  
+//
 //
 //  Created by Kenneth Endfinger on 12/31/20.
 //
@@ -13,10 +13,10 @@ struct ListProjectsTool: ParsableCommand {
         commandName: "list-projects",
         abstract: "List Projects Available in a Release"
     )
-    
+
     @Option(name: .shortAndLong, help: "Product Name")
     var product: String
-    
+
     @Option(name: .shortAndLong, help: "Release Name")
     var release: String
 
