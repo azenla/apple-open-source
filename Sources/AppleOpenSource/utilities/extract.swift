@@ -7,13 +7,15 @@
 
 import Foundation
 
-func extractArchive(tar: URL, into: URL) throws {
+func extractProjectArchive(tar: URL, into: URL) throws {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
-    process.currentDirectoryPath = into.path
+    process.currentDirectoryPath = into.absoluteURL.path
     process.arguments = [
-        "xf",
-        tar.path
+        "zxf",
+        tar.absoluteURL.path,
+        "--strip-components",
+        "1"
     ]
     try process.run()
     process.waitUntilExit()

@@ -33,3 +33,17 @@ extension Encodable {
         return try encoder.encode(self).string()
     }
 }
+
+extension FileManager {
+    func createDirectoriesIfNotExists(_ url: URL) throws {
+        if FileManager.default.fileExists(atPath: url.path) {
+            return
+        }
+
+        try FileManager.default.createDirectory(
+            atPath: url.path,
+            withIntermediateDirectories: true,
+            attributes: nil
+        )
+    }
+}

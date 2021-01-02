@@ -29,6 +29,9 @@ struct FetchTool: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Extract Tarballs")
     var extract: Bool = false
 
+    @Flag(name: .long, help: "Keep Tarballs Post-Extraction")
+    var keepTar: Bool = false
+
     func run() throws {
         let lowerProductName = product.lowercased()
         let smooshedReleaseName = release.replacingOccurrences(of: ".", with: "")
@@ -40,31 +43,27 @@ struct FetchTool: ParsableCommand {
         }
 
         let outputDirectoryURL = URL(fileURLWithPath: output)
-        if !FileManager.default.fileExists(atPath: outputDirectoryURL.absoluteString) {
-            try FileManager.default.createDirectory(at: outputDirectoryURL, withIntermediateDirectories: true, attributes: nil)
-        }
+        try FileManager.default.createDirectoriesIfNotExists(outputDirectoryURL)
 
         for project in release.projects.values {
             if !selection.isEmpty,
                !selectionInLower.contains(project.name!.lowercased()) {
                 continue
             }
-            let url = URL(string: project.url!)!
+            let remoteTarballURL = URL(string: project.url!)!
 
-            print("* \(url.lastPathComponent)")
+            print("* \(remoteTarballURL.lastPathComponent)")
 
-            let localURL = outputDirectoryURL.appendingPathComponent(url.lastPathComponent)
-
-            print(localURL.absoluteString)
+            let localTarURL = outputDirectoryURL.appendingPathComponent(remoteTarballURL.lastPathComponent)
 
             let semaphore = DispatchSemaphore(value: 0)
-            let task = URLSession.shared.downloadTask(with: url) { fileURL, _, error in
+            let task = URLSession.shared.downloadTask(with: remoteTarballURL) { tmpTarURL, _, error in
                 if error != nil {
                     FetchTool.exit(withError: error)
                 }
 
                 do {
-                    try FileManager.default.moveItem(at: fileURL!, to: localURL)
+                    try FileManager.default.moveItem(at: tmpTarURL!, to: localTarURL)
                 } catch {
                     FetchTool.exit(withError: error)
                 }
@@ -74,7 +73,13 @@ struct FetchTool: ParsableCommand {
             task.resume()
             semaphore.wait()
             if extract {
-                try extractArchive(tar: localURL, into: outputDirectoryURL)
+                let projectSourceURL = outputDirectoryURL.appendingPathComponent(project.name!)
+                try FileManager.default.createDirectoriesIfNotExists(projectSourceURL)
+                try extractProjectArchive(tar: localTarURL, into: projectSourceURL)
+
+                if !keepTar {
+                    try FileManager.default.removeItem(at: localTarURL)
+                }
             }
         }
 

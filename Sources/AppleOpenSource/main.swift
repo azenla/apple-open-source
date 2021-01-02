@@ -15,7 +15,8 @@ struct OpenSourceTool: ParsableCommand {
         subcommands: [
             ListReleasesTool.self,
             ListProjectsTool.self,
-            FetchTool.self
+            FetchTool.self,
+            XcodeProjectsTool.self
         ]
     )
 }
