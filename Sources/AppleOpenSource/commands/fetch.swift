@@ -26,6 +26,9 @@ struct FetchTool: ParsableCommand {
     @Option(name: .shortAndLong, help: "Output Directory")
     var output: String = Process().currentDirectoryPath
 
+    @Flag(name: .shortAndLong, help: "Extract Tarballs")
+    var extract: Bool = false
+
     func run() throws {
         let lowerProductName = product.lowercased()
         let smooshedReleaseName = release.replacingOccurrences(of: ".", with: "")
@@ -46,17 +49,20 @@ struct FetchTool: ParsableCommand {
                !selectionInLower.contains(project.name!.lowercased()) {
                 continue
             }
-            let url = project.createDownloadURL()
+            let url = URL(string: project.url!)!
 
             print("* \(url.lastPathComponent)")
+
+            let localURL = outputDirectoryURL.appendingPathComponent(url.lastPathComponent)
+
+            print(localURL.absoluteString)
+
             let semaphore = DispatchSemaphore(value: 0)
             let task = URLSession.shared.downloadTask(with: url) { fileURL, _, error in
                 if error != nil {
                     FetchTool.exit(withError: error)
                 }
 
-                let outputPath = "\(output)/\(String(url.lastPathComponent))"
-                let localURL = URL(fileURLWithPath: outputPath)
                 do {
                     try FileManager.default.moveItem(at: fileURL!, to: localURL)
                 } catch {
@@ -67,6 +73,9 @@ struct FetchTool: ParsableCommand {
 
             task.resume()
             semaphore.wait()
+            if extract {
+                try extractArchive(tar: localURL, into: outputDirectoryURL)
+            }
         }
 
         FetchTool.exit()

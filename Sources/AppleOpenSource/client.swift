@@ -15,6 +15,7 @@ struct OpenSourceClient {
         for projectName in release.projects.keys {
             var project = release.projects[projectName]!
             project.name = projectName
+            project.url = URL(string: "https://opensource.apple.com/tarballs/\(projectName)/\(projectName)-\(project.version).tar.gz")!.absoluteString
             release.projects[projectName] = project
         }
         return release
@@ -31,8 +32,5 @@ struct OpenSourceProject: Codable {
     var version: String
 
     var name: String? = "unknown"
-
-    func createDownloadURL() -> URL {
-        URL(string: "https://opensource.apple.com/tarballs/\(name!)/\(name!)-\(version).tar.gz")!
-    }
+    var url: String? = "http://unknown"
 }

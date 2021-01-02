@@ -4,6 +4,9 @@ import PackageDescription
 
 let package = Package(
     name: "AppleOpenSource",
+    platforms: [
+        .macOS("10.15")
+    ],
     products: [
         .executable(
             name: "apple-open-source",

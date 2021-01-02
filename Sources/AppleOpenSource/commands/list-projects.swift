@@ -20,15 +20,24 @@ struct ListProjectsTool: ParsableCommand {
     @Option(name: .shortAndLong, help: "Release Name")
     var release: String
 
+    @Option(name: .shortAndLong, help: "Output Format")
+    var format: OutputFormat = .text
+
     func run() throws {
         let lowerProductName = product.lowercased()
         let smooshedReleaseName = release.replacingOccurrences(of: ".", with: "")
         let moniker = "\(lowerProductName)-\(smooshedReleaseName)"
         let release = try OpenSourceClient.fetchReleaseDetails(moniker: moniker)
-        for project in release.projects.values {
-            print("* \(project.name!)")
-            print("  * version = \(project.version)")
-            print("  * url = \(project.createDownloadURL().absoluteString)")
+
+        switch format {
+        case .text:
+            for project in release.projects.values {
+                print("* \(project.name!)")
+                print("  * version = \(project.version)")
+                print("  * url = \(project.url!)")
+            }
+        case .json:
+            print(try release.json())
         }
     }
 }
