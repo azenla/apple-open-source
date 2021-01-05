@@ -52,7 +52,7 @@ struct XcodeProjectsTool: ParsableCommand {
             for xcodeProjectPath in xcodeProjectPaths {
                 let model = try loadXcodeProject(xcodeProjectPath)
                 if model != nil {
-                    try analyzeXcodeModel(xcodeProjectPath, model!)
+                    try analyzeXcodeModelForInstallableArtifacts(xcodeProjectPath, model!)
                 }
             }
         }
@@ -68,73 +68,63 @@ struct XcodeProjectsTool: ParsableCommand {
         return try decoder.decode(XcodeProjectModel.self, from: data)
     }
 
-    func analyzeXcodeModel(_ path: String, _ model: XcodeProjectModel) throws {
+    func analyzeXcodeModelForInstallableArtifacts(_ path: String, _ model: XcodeProjectModel) throws {
         let targets = model.findObjectWithType("PBXNativeTarget")
 
         for entry in targets {
-            let object = entry.value
-            let productName = object.productName!
-            let productReference = model.objects[object.productReference ?? "__NONE__"]
+            let nativeTarget = entry.value
+            let productReference = model.objects[nativeTarget.productReference ?? "__NONE__"]
             let productReferencePath = productReference?.path
-            let installPath = object.productInstallPath
+            var installPath = nativeTarget.productInstallPath
 
-            print("\(path) \(productName) \(String(describing: productReferencePath)) \(String(describing: installPath))")
-        }
-    }
-}
+            var buildConfigurationSet: [String]?
 
-typealias XcodeProjectModelObject = [String: AnyCodable]
-struct XcodeProjectModel: Codable {
-    let archiveVersion: String
-    let classes: AnyCodable
-    let objectVersion: String
-    let objects: [String: XcodeProjectModelObject]
-
-    func findObjectWithType(_ type: String) -> [String: XcodeProjectModelObject] {
-        var matchingObjects: [String: XcodeProjectModelObject] = [:]
-        for entry in objects {
-            if entry.value.isa == type {
-                matchingObjects[entry.key] = entry.value
+            if nativeTarget.buildConfigurations != nil {
+                buildConfigurationSet = nativeTarget.buildConfigurations
             }
+
+            if buildConfigurationSet == nil {
+                if let buildConfigurationListRef = nativeTarget.buildConfigurationList {
+                    buildConfigurationSet = model.objects[buildConfigurationListRef]?.buildConfigurations
+                }
+            }
+
+            let buildConfigurations = model.mapReferenceArray(buildConfigurationSet)
+
+            let buildConfiguration: XcodeProjectModelObject? = buildConfigurations.values.first {
+                if let n = $0.name {
+                    return n == "Release"
+                } else {
+                    return false
+                }
+            }
+
+            if buildConfiguration != nil {
+                let buildSettings = buildConfiguration?.buildSettings
+                if let buildSettings = buildSettings {
+                    installPath = buildSettings["INSTALL_PATH"] as? String
+                }
+            }
+
+            if installPath == nil {
+                continue
+            }
+
+            let jsonInfo: [String: String?] = [
+                "project": path,
+                "targetName": nativeTarget.name,
+                "productName": nativeTarget.productName,
+                "installDirectoryPath": installPath,
+                "installFileName": productReferencePath
+            ]
+
+            let jsonEncoder = JSONEncoder()
+            jsonEncoder.outputFormatting = [
+                .sortedKeys,
+                .withoutEscapingSlashes
+            ]
+
+            print(try jsonEncoder.encode(jsonInfo).string())
         }
-        return matchingObjects
-    }
-}
-
-extension XcodeProjectModelObject {
-    var isa: String {
-        self["isa"]?.value as! String
-    }
-
-    var name: String? {
-        self["name"]?.value as? String
-    }
-
-    var productName: String? {
-        self["productName"]?.value as? String
-    }
-
-    var productReference: String? {
-        self["productReference"]?.value as? String
-    }
-
-    var path: String? {
-        self["path"]?.value as? String
-    }
-
-    var productInstallPath: String? {
-        self["productInstallPath"]?.value as? String
-    }
-
-    var buildSettings: [String: AnyCodable]? {
-        self["buildSettings"]?.value as? [String: AnyCodable]
-    }
-
-    var defaultConfigurationName: String? {
-        self["defaultConfigurationName"]?.value as? String
-    }
-
-    var buildConfigurations: [String]? {
-        self["buildConfigurations"]?.value as? [String]
     }
 }

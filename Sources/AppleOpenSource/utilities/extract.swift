@@ -21,6 +21,6 @@ func extractProjectArchive(tar: URL, into: URL) throws {
     process.waitUntilExit()
     let exitStatus = process.terminationStatus
     if exitStatus != 0 {
-        exit(1)
+        print("WARN: Failed to extract file \(tar.path) (status = \(exitStatus)")
     }
 }
