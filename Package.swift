@@ -14,9 +14,9 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMinor(from: "0.3.1")),
-        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "1.7.4"),
-        .package(url: "https://github.com/Flight-School/AnyCodable.git", from: "0.4.0")
+        .package(url: "https://github.com/apple/swift-argument-parser.git", .upToNextMinor(from: "1.0.1")),
+        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.3"),
+        .package(url: "https://github.com/Flight-School/AnyCodable.git", from: "0.6.2")
     ],
     targets: [
         .target(
