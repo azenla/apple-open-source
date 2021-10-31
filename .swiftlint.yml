@@ -1,6 +1,11 @@
 disabled_rules:
 - type_name
-line_length: 180
+- force_cast
+- trailing_comma
+- nesting
+- large_tuple
+line_length: 190
 identifier_name:
   excluded:
   - id
+  - db

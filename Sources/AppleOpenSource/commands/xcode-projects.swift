@@ -92,8 +92,8 @@ struct XcodeProjectsTool: ParsableCommand {
             let buildConfigurations = model.mapReferenceArray(buildConfigurationSet)
 
             let buildConfiguration: XcodeProjectModelObject? = buildConfigurations.values.first {
-                if let n = $0.name {
-                    return n == "Release"
+                if let name = $0.name {
+                    return name == "Release"
                 } else {
                     return false
                 }

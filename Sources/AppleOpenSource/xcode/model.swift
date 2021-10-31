@@ -18,10 +18,8 @@ struct XcodeProjectModel: Codable {
 
     func findObjectWithType(_ type: String) -> [String: XcodeProjectModelObject] {
         var matchingObjects: [String: XcodeProjectModelObject] = [:]
-        for entry in objects {
-            if entry.value.isa == type {
-                matchingObjects[entry.key] = entry.value
-            }
+        for entry in objects where entry.value.isa == type {
+            matchingObjects[entry.key] = entry.value
         }
         return matchingObjects
     }
