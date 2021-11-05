@@ -8,6 +8,10 @@
 import ArgumentParser
 import Foundation
 
+#if canImport(FoundationNetworking)
+    import FoundationNetworking
+#endif
+
 struct FetchTool: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "fetch",
