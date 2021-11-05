@@ -41,13 +41,19 @@ struct ListReleasesTool: ParsableCommand {
             var index = 0
             for releaseListButton in releaseListButtons {
                 let releaseListButtonSpan = try releaseListButton.select("span").first()!
-                let releaseName = try releaseListButtonSpan.text()
-                print("  * \(releaseName)")
+                let superReleaseName = try releaseListButtonSpan.text()
+                let actualSuperReleaseName = String(superReleaseName.split(separator: "/")[0])
+                guard let actualListElement = try releaseListElement.getElementById("release-list-\(productName)-\(actualSuperReleaseName)") else {
+                    continue
+                }
+                for actualReleaseElement in try actualListElement.select("a") {
+                    let actualReleaseName = try actualReleaseElement.text()
+                    print("  * \(actualReleaseName)")
+                    index += 1
 
-                index += 1
-
-                if index == limit {
-                    break
+                    if index == limit {
+                        break
+                    }
                 }
             }
         }
